@@ -38,3 +38,45 @@ Aplicación Android educativa basada en la guía integradora de Scrum + Android 
 ## Nota
 
 Los datos son sintéticos y se mantienen únicamente durante la ejecución, tal como plantea el incremento inicial de la guía.
+
+prestamolab-ctma-android/
+├── .github/
+│   └── workflows/
+│       └── android-ci.yml
+├── app/
+│   ├── src/
+│   │   ├── main/java/com/example/prestamolab/
+│   │   │   ├── MainActivity.kt
+│   │   │   ├── model/
+│   │   │   │   ├── Equipo.kt
+│   │   │   │   └── Prestamo.kt
+│   │   │   ├── ui/
+│   │   │   │   ├── screens/
+│   │   │   │   │   ├── HomeScreen.kt
+│   │   │   │   │   ├── SolicitarScreen.kt
+│   │   │   │   │   └── ...
+│   │   │   │   └── theme/
+│   │   │   ├── viewmodel/
+│   │   │   │   └── PrestamoViewModel.kt
+│   │   │   └── data/
+│   │   │       └── PrestamoRepository.kt
+│   │   └── main/res/
+│   └── build.gradle.kts
+├── docs/
+│   ├── product-backlog.md
+│   ├── sprint-backlog.md
+│   ├── matriz-riesgos.md
+│   ├── matriz-trazabilidad.md
+│   ├── suite-pruebas.md
+│   ├── bitacora-pruebas.md
+│   ├── registro-defectos.md
+│   ├── sprint-review.md
+│   └── informe-ejecutivo.md
+├── gradle/
+│   └── wrapper/
+├── build.gradle.kts
+├── gradle.properties
+├── settings.gradle.kts
+├── gradlew
+├── gradlew.bat
+└── README.md
