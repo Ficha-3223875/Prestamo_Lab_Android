@@ -6,7 +6,7 @@
 
     <uses-sdk
         android:minSdkVersion="25"
-        android:targetSdkVersion="25" />
+        android:targetSdkVersion="34" />
 
     <permission
         android:name="com.example.prestamolab.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
@@ -21,6 +21,7 @@
         android:extractNativeLibs="false"
         android:label="PréstamoLab CTMA"
         android:supportsRtl="true"
+        android:testOnly="true"
         android:theme="@style/Theme.PrestamoLab" >
         <activity
             android:name="com.example.prestamolab.MainActivity"

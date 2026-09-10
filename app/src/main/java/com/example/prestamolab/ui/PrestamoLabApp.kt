@@ -7,16 +7,13 @@ import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import com.example.prestamolab.data.repository.RepositoryProvider
-import com.example.prestamolab.ui.screens.CatalogoScreen
-import com.example.prestamolab.ui.screens.EquipoDetalleScreen
-import com.example.prestamolab.ui.screens.MisSolicitudesScreen
-import com.example.prestamolab.ui.screens.SolicitudDetalleScreen
-import com.example.prestamolab.ui.screens.SolicitarScreen
+import com.example.prestamolab.ui.screens.*
 import com.example.prestamolab.viewmodel.PrestamoViewModel
 import com.example.prestamolab.viewmodel.PrestamoViewModelFactory
 
@@ -38,18 +35,51 @@ fun PrestamoLabApp() {
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
+            NavigationBar(
+                containerColor = MaterialTheme.colorScheme.surface,
+                tonalElevation = NavigationBarDefaults.Elevation
+            ) {
                 NavigationBarItem(
                     selected = navController.currentBackStackEntryAsState().value?.destination?.route == Routes.CATALOGO,
-                    onClick = { navController.navigate(Routes.CATALOGO) },
-                    icon = { Icon(Icons.Default.Inventory2, contentDescription = "Catálogo") },
-                    label = { Text("Equipos") }
+                    onClick = {
+                        navController.navigate(Routes.CATALOGO) {
+                            popUpTo(Routes.CATALOGO) { inclusive = true }
+                        }
+                    },
+                    icon = {
+                        Icon(
+                            Icons.Default.Inventory2,
+                            contentDescription = "Catalogo"
+                        )
+                    },
+                    label = {
+                        Text(
+                            "Equipos",
+                            fontWeight = if (navController.currentBackStackEntryAsState().value?.destination?.route == Routes.CATALOGO)
+                                FontWeight.Bold else FontWeight.Normal
+                        )
+                    }
                 )
                 NavigationBarItem(
                     selected = navController.currentBackStackEntryAsState().value?.destination?.route == Routes.SOLICITUDES,
-                    onClick = { navController.navigate(Routes.SOLICITUDES) },
-                    icon = { Icon(Icons.Default.Assignment, contentDescription = "Mis solicitudes") },
-                    label = { Text("Mis solicitudes") }
+                    onClick = {
+                        navController.navigate(Routes.SOLICITUDES) {
+                            popUpTo(Routes.CATALOGO)
+                        }
+                    },
+                    icon = {
+                        Icon(
+                            Icons.Default.Assignment,
+                            contentDescription = "Mis solicitudes"
+                        )
+                    },
+                    label = {
+                        Text(
+                            "Solicitudes",
+                            fontWeight = if (navController.currentBackStackEntryAsState().value?.destination?.route == Routes.SOLICITUDES)
+                                FontWeight.Bold else FontWeight.Normal
+                        )
+                    }
                 )
             }
         }

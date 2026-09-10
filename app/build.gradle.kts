@@ -11,7 +11,7 @@ android {
     defaultConfig {
         applicationId = "com.example.prestamolab"
         minSdk = 25
-        targetSdk = 25
+        targetSdk = 34
         versionCode = 1
         versionName = "0.1.0"
     }
