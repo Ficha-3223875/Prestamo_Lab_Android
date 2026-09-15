@@ -35,8 +35,8 @@ Aplicación Android educativa basada en la guía integradora de Scrum + Android 
 4. Ejecuta en un emulador o dispositivo Android.
 5. La aplicación inicia en el catálogo.
 
-## Nota
 
+## Nota
 Los datos son sintéticos y se mantienen únicamente durante la ejecución, tal como plantea el incremento inicial de la guía.
 
 

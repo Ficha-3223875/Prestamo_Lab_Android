@@ -1,5 +1,6 @@
 package com.example.prestamolab
 
+import com.example.prestamolab.data.destinoValido
 import com.example.prestamolab.data.duracionValida
 import com.example.prestamolab.data.propositoValido
 import org.junit.Assert.assertFalse
@@ -7,6 +8,26 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ValidacionesTest {
+
+    @Test
+    fun destino_vacio_invalido() {
+        assertFalse(destinoValido(""))
+    }
+
+    @Test
+    fun destino_solo_espacios_invalido() {
+        assertFalse(destinoValido("   "))
+    }
+
+    @Test
+    fun destino_valido() {
+        assertTrue(destinoValido("Lab 3"))
+    }
+
+    @Test
+    fun destino_con_espacios_valido() {
+        assertTrue(destinoValido("  Lab 3  "))
+    }
 
     @Test
     fun proposito_9_invalido() {

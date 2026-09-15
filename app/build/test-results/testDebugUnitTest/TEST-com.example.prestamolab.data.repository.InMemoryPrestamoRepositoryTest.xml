@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.prestamolab.data.repository.InMemoryPrestamoRepositoryTest" tests="13" skipped="0" failures="0" errors="0" timestamp="2026-09-15T12:13:53" hostname="DESKTOP-B3EHTHP" time="0.047">
+  <properties/>
+  <testcase name="crearSolicitud_sobre_equipo_no_disponible_falla" classname="com.example.prestamolab.data.repository.InMemoryPrestamoRepositoryTest" time="0.013"/>
+  <testcase name="crearSolicitud_exitosa_asigna_id_y_reserva_equipo" classname="com.example.prestamolab.data.repository.InMemoryPrestamoRepositoryTest" time="0.003"/>
+  <testcase name="crear_solicitud_duplicada_sobre_el_mismo_equipo_es_rechazada" classname="com.example.prestamolab.data.repository.InMemoryPrestamoRepositoryTest" time="0.0"/>
+  <testcase name="cancelarSolicitud_ya_cancelada_falla" classname="com.example.prestamolab.data.repository.InMemoryPrestamoRepositoryTest" time="0.001"/>
+  <testcase name="obtenerEquipo_existente_devuelve_el_equipo" classname="com.example.prestamolab.data.repository.InMemoryPrestamoRepositoryTest" time="0.0"/>
+  <testcase name="cancelarSolicitud_permite_solicitar_de_nuevo" classname="com.example.prestamolab.data.repository.InMemoryPrestamoRepositoryTest" time="0.025"/>
+  <testcase name="obtenerSolicitud_existente_devuelve_la_solicitud" classname="com.example.prestamolab.data.repository.InMemoryPrestamoRepositoryTest" time="0.0"/>
+  <testcase name="cancelarSolicitud_exitosa_cancela_y_libera_equipo" classname="com.example.prestamolab.data.repository.InMemoryPrestamoRepositoryTest" time="0.001"/>
+  <testcase name="obtenerSolicitud_inexistente_devuelve_null" classname="com.example.prestamolab.data.repository.InMemoryPrestamoRepositoryTest" time="0.001"/>
+  <testcase name="obtenerEquipos_devuelve_los_seis_iniciales" classname="com.example.prestamolab.data.repository.InMemoryPrestamoRepositoryTest" time="0.0"/>
+  <testcase name="cancelarSolicitud_inexistente_falla" classname="com.example.prestamolab.data.repository.InMemoryPrestamoRepositoryTest" time="0.001"/>
+  <testcase name="crearSolicitud_con_equipo_inexistente_falla" classname="com.example.prestamolab.data.repository.InMemoryPrestamoRepositoryTest" time="0.001"/>
+  <testcase name="obtenerEquipo_inexistente_devuelve_null" classname="com.example.prestamolab.data.repository.InMemoryPrestamoRepositoryTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

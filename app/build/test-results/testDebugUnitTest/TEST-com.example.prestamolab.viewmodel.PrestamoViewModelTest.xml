@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.prestamolab.viewmodel.PrestamoViewModelTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-09-15T12:13:53" hostname="DESKTOP-B3EHTHP" time="0.022">
+  <properties/>
+  <testcase name="crearSolicitud_con_destino_vacio_muestra_error" classname="com.example.prestamolab.viewmodel.PrestamoViewModelTest" time="0.013"/>
+  <testcase name="equipo_devuelve_el_equipo_por_id" classname="com.example.prestamolab.viewmodel.PrestamoViewModelTest" time="0.001"/>
+  <testcase name="cancelarSolicitud_exitosa_libera_el_equipo" classname="com.example.prestamolab.viewmodel.PrestamoViewModelTest" time="0.001"/>
+  <testcase name="crearSolicitud_con_equipo_inexistente_muestra_error" classname="com.example.prestamolab.viewmodel.PrestamoViewModelTest" time="0.0"/>
+  <testcase name="crearSolicitud_exitosa_actualiza_el_estado" classname="com.example.prestamolab.viewmodel.PrestamoViewModelTest" time="0.001"/>
+  <testcase name="estado_inicial_carga_equipos_y_solicitudes" classname="com.example.prestamolab.viewmodel.PrestamoViewModelTest" time="0.0"/>
+  <testcase name="cancelarSolicitud_inexistente_muestra_error" classname="com.example.prestamolab.viewmodel.PrestamoViewModelTest" time="0.001"/>
+  <testcase name="crearSolicitud_sobre_equipo_no_disponible_muestra_error" classname="com.example.prestamolab.viewmodel.PrestamoViewModelTest" time="0.0"/>
+  <testcase name="crearSolicitud_con_duracion_invalida_muestra_error" classname="com.example.prestamolab.viewmodel.PrestamoViewModelTest" time="0.001"/>
+  <testcase name="no_permite_doble_guardado_mientras_guardando" classname="com.example.prestamolab.viewmodel.PrestamoViewModelTest" time="0.002"/>
+  <testcase name="cancelarSolicitud_que_no_esta_solicitada_muestra_error" classname="com.example.prestamolab.viewmodel.PrestamoViewModelTest" time="0.0"/>
+  <testcase name="limpiarMensaje_vacia_el_mensaje" classname="com.example.prestamolab.viewmodel.PrestamoViewModelTest" time="0.001"/>
+  <testcase name="solicitud_devuelve_la_solicitud_creada" classname="com.example.prestamolab.viewmodel.PrestamoViewModelTest" time="0.0"/>
+  <testcase name="crearSolicitud_con_proposito_fuera_de_rango_muestra_error" classname="com.example.prestamolab.viewmodel.PrestamoViewModelTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
