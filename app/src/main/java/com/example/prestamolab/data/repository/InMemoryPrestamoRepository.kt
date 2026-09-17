@@ -1,5 +1,6 @@
 package com.example.prestamolab.data.repository
 
+import com.example.prestamolab.model.CategoriaEquipo
 import com.example.prestamolab.model.Equipo
 import com.example.prestamolab.model.EstadoEquipo
 import com.example.prestamolab.model.EstadoSolicitud
@@ -8,12 +9,12 @@ import com.example.prestamolab.model.SolicitudPrestamo
 class InMemoryPrestamoRepository : PrestamoRepository {
 
     private val equipos = mutableListOf(
-        Equipo(1, "Portátil Lenovo ThinkPad", com.example.prestamolab.model.CategoriaEquipo.COMPUTO, EstadoEquipo.DISPONIBLE),
-        Equipo(2, "Video Beam Epson", com.example.prestamolab.model.CategoriaEquipo.AUDIOVISUAL, EstadoEquipo.DISPONIBLE),
-        Equipo(3, "Kit Arduino UNO", com.example.prestamolab.model.CategoriaEquipo.ELECTRONICA, EstadoEquipo.DISPONIBLE),
-        Equipo(4, "Router TP-Link", com.example.prestamolab.model.CategoriaEquipo.REDES, EstadoEquipo.RESERVADO),
-        Equipo(5, "Portátil HP ProBook", com.example.prestamolab.model.CategoriaEquipo.COMPUTO, EstadoEquipo.PRESTADO),
-        Equipo(6, "Cámara Logitech", com.example.prestamolab.model.CategoriaEquipo.AUDIOVISUAL, EstadoEquipo.DISPONIBLE)
+        Equipo(1, "Portátil Lenovo ThinkPad", CategoriaEquipo.COMPUTO, EstadoEquipo.DISPONIBLE),
+        Equipo(2, "Video Beam Epson", CategoriaEquipo.AUDIOVISUAL, EstadoEquipo.DISPONIBLE),
+        Equipo(3, "Kit Arduino UNO", CategoriaEquipo.ELECTRONICA, EstadoEquipo.DISPONIBLE),
+        Equipo(4, "Router TP-Link", CategoriaEquipo.REDES, EstadoEquipo.RESERVADO),
+        Equipo(5, "Portátil HP ProBook", CategoriaEquipo.COMPUTO, EstadoEquipo.PRESTADO),
+        Equipo(6, "Cámara Logitech", CategoriaEquipo.AUDIOVISUAL, EstadoEquipo.DISPONIBLE)
     )
 
     private val solicitudes = mutableListOf<SolicitudPrestamo>()
@@ -43,11 +44,11 @@ class InMemoryPrestamoRepository : PrestamoRepository {
 
         val existeActiva = solicitudes.any {
             it.equipoId == solicitud.equipoId &&
-                it.estado in setOf(
-                    EstadoSolicitud.SOLICITADA,
-                    EstadoSolicitud.APROBADA,
-                    EstadoSolicitud.ENTREGADA
-                )
+                    it.estado in setOf(
+                EstadoSolicitud.SOLICITADA,
+                EstadoSolicitud.APROBADA,
+                EstadoSolicitud.ENTREGADA
+            )
         }
 
         if (existeActiva) {

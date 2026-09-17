@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -16,7 +17,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.prestamolab.model.CategoriaEquipo
 import com.example.prestamolab.model.EstadoEquipo
 import com.example.prestamolab.model.Equipo
 import com.example.prestamolab.ui.theme.*
@@ -34,7 +34,7 @@ fun EquipoDetalleScreen(
                 title = { Text("Detalle del equipo") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -44,7 +44,7 @@ fun EquipoDetalleScreen(
         }
     ) { padding ->
         if (equipo == null) {
-            ErrorState("No se encontro el equipo solicitado.", Modifier.padding(padding))
+            ErrorState("No se encontró el equipo solicitado.", Modifier.padding(padding))
             return@Scaffold
         }
 
@@ -54,7 +54,6 @@ fun EquipoDetalleScreen(
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
         ) {
-            // Header con icono grande
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -88,12 +87,10 @@ fun EquipoDetalleScreen(
                 }
             }
 
-            // Info sections
             Column(
                 modifier = Modifier.padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Sección de información
                 Card(
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
@@ -106,7 +103,7 @@ fun EquipoDetalleScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Text(
-                            "Informacion del equipo",
+                            "Información del equipo",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.primary
@@ -115,7 +112,7 @@ fun EquipoDetalleScreen(
 
                         InfoRow(
                             icon = Icons.Default.Category,
-                            label = "Categoria",
+                            label = "Categoría",
                             value = equipo.categoria.texto
                         )
                         InfoRow(
@@ -131,7 +128,6 @@ fun EquipoDetalleScreen(
                     }
                 }
 
-                // Botón de solicitar
                 Button(
                     onClick = onSolicitar,
                     enabled = equipo.estado == EstadoEquipo.DISPONIBLE,
@@ -150,12 +146,11 @@ fun EquipoDetalleScreen(
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        "Solicitar prestamo",
+                        "Solicitar préstamo",
                         fontWeight = FontWeight.SemiBold
                     )
                 }
 
-                // Mensaje si no está disponible
                 if (equipo.estado != EstadoEquipo.DISPONIBLE) {
                     Card(
                         shape = RoundedCornerShape(12.dp),
@@ -175,7 +170,7 @@ fun EquipoDetalleScreen(
                             )
                             Spacer(Modifier.width(12.dp))
                             Text(
-                                "Este equipo no puede solicitarse porque no esta disponible.",
+                                "Este equipo no puede solicitarse porque no está disponible.",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.error
                             )
@@ -239,11 +234,4 @@ fun ErrorState(message: String, modifier: Modifier = Modifier) {
             )
         }
     }
-}
-
-private fun categoriaIcon(categoria: CategoriaEquipo): ImageVector = when (categoria) {
-    CategoriaEquipo.COMPUTO -> Icons.Default.Computer
-    CategoriaEquipo.AUDIOVISUAL -> Icons.Default.Videocam
-    CategoriaEquipo.ELECTRONICA -> Icons.Default.Memory
-    CategoriaEquipo.REDES -> Icons.Default.Router
 }

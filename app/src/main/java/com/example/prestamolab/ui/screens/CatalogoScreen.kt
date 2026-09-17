@@ -14,10 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.prestamolab.model.CategoriaEquipo
 import com.example.prestamolab.model.EstadoEquipo
 import com.example.prestamolab.model.Equipo
 import com.example.prestamolab.ui.theme.*
@@ -35,12 +33,12 @@ fun CatalogoScreen(
                 title = {
                     Column {
                         Text(
-                            "PrestamoLab CTMA",
+                            "PréstamoLab CTMA",
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            "Catalogo de equipos",
+                            "Catálogo de equipos",
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -80,8 +78,6 @@ private fun EquipoCard(
     equipo: Equipo,
     onClick: (Int) -> Unit
 ) {
-    val disponible = equipo.estado == EstadoEquipo.DISPONIBLE
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -98,7 +94,6 @@ private fun EquipoCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Icono de categoría
             Box(
                 modifier = Modifier
                     .size(48.dp)
@@ -116,7 +111,6 @@ private fun EquipoCard(
 
             Spacer(Modifier.width(16.dp))
 
-            // Info del equipo
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     equipo.nombre,
@@ -133,7 +127,6 @@ private fun EquipoCard(
                 EstadoChip(equipo.estado)
             }
 
-            // Flecha
             Icon(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = null,
@@ -164,11 +157,4 @@ fun EstadoChip(estado: EstadoEquipo) {
             color = textColor
         )
     }
-}
-
-private fun categoriaIcon(categoria: CategoriaEquipo): ImageVector = when (categoria) {
-    CategoriaEquipo.COMPUTO -> Icons.Default.Computer
-    CategoriaEquipo.AUDIOVISUAL -> Icons.Default.Videocam
-    CategoriaEquipo.ELECTRONICA -> Icons.Default.Memory
-    CategoriaEquipo.REDES -> Icons.Default.Router
 }

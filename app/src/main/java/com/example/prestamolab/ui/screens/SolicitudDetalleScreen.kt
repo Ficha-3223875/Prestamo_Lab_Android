@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -35,7 +36,7 @@ fun SolicitudDetalleScreen(
                 title = { Text("Detalle de solicitud") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -45,7 +46,7 @@ fun SolicitudDetalleScreen(
         }
     ) { padding ->
         if (solicitud == null) {
-            ErrorState("La solicitud no existe o ya no esta disponible.", Modifier.padding(padding))
+            ErrorState("La solicitud no existe o ya no está disponible.", Modifier.padding(padding))
             return@Scaffold
         }
 
@@ -55,7 +56,6 @@ fun SolicitudDetalleScreen(
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
         ) {
-            // Header
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -89,12 +89,10 @@ fun SolicitudDetalleScreen(
                 }
             }
 
-            // Info sections
             Column(
                 modifier = Modifier.padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Sección de información del préstamo
                 Card(
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
@@ -107,7 +105,7 @@ fun SolicitudDetalleScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Text(
-                            "Informacion del prestamo",
+                            "Información del préstamo",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.primary
@@ -126,18 +124,17 @@ fun SolicitudDetalleScreen(
                         )
                         DetailRow(
                             icon = Icons.Default.Description,
-                            label = "Proposito",
+                            label = "Propósito",
                             value = solicitud.proposito
                         )
                         DetailRow(
                             icon = Icons.Default.Schedule,
-                            label = "Duracion",
+                            label = "Duración",
                             value = "${solicitud.duracionHoras} horas"
                         )
                     }
                 }
 
-                // Sección de estado
                 Card(
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
@@ -178,7 +175,6 @@ fun SolicitudDetalleScreen(
                     }
                 }
 
-                // Botón cancelar
                 if (solicitud.estado == EstadoSolicitud.SOLICITADA) {
                     OutlinedButton(
                         onClick = onCancelar,
@@ -199,7 +195,6 @@ fun SolicitudDetalleScreen(
                         Text("Cancelar solicitud", fontWeight = FontWeight.SemiBold)
                     }
                 } else {
-                    // Mensaje de estado no cancelable
                     Card(
                         shape = RoundedCornerShape(12.dp),
                         colors = CardDefaults.cardColors(

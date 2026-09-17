@@ -1,8 +1,8 @@
 package com.example.prestamolab
 
-import com.example.prestamolab.data.destinoValido
-import com.example.prestamolab.data.duracionValida
-import com.example.prestamolab.data.propositoValido
+import com.example.prestamolab.data.repository.destinoValido
+import com.example.prestamolab.data.repository.duracionValida
+import com.example.prestamolab.data.repository.propositoValido
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test

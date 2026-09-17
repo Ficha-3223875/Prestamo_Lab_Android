@@ -1,11 +1,13 @@
 package com.example.prestamolab.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.example.prestamolab.data.destinoValido
-import com.example.prestamolab.data.duracionValida
-import com.example.prestamolab.data.propositoValido
+import com.example.prestamolab.data.repository.destinoValido
+import com.example.prestamolab.data.repository.duracionValida
+import com.example.prestamolab.data.repository.equipoDisponible
+import com.example.prestamolab.data.repository.propositoValido
 import com.example.prestamolab.data.repository.PrestamoRepository
 import com.example.prestamolab.model.Equipo
+import com.example.prestamolab.model.EstadoSolicitud
 import com.example.prestamolab.model.SolicitudPrestamo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -50,7 +52,7 @@ class PrestamoViewModel(
         val equipo = repository.obtenerEquipo(equipoId)
             ?: return mostrarError("El equipo solicitado no existe.")
 
-        if (equipo.estado.name != "DISPONIBLE") {
+        if (!equipoDisponible(equipo)) {
             return mostrarError("El equipo no está disponible.")
         }
 
@@ -75,7 +77,7 @@ class PrestamoViewModel(
                 ambienteDestino = destino.trim(),
                 proposito = proposito.trim(),
                 duracionHoras = duracionHoras,
-                estado = com.example.prestamolab.model.EstadoSolicitud.SOLICITADA
+                estado = EstadoSolicitud.SOLICITADA
             )
         )
 

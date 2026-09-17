@@ -6,6 +6,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -34,10 +35,10 @@ fun SolicitarScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Solicitar prestamo") },
+                title = { Text("Solicitar préstamo") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -48,7 +49,7 @@ fun SolicitarScreen(
     ) { padding ->
         if (equipo == null) {
             ErrorState(
-                message = "No se encontro el equipo.",
+                message = "No se encontró el equipo.",
                 modifier = Modifier.padding(padding)
             )
         } else {
@@ -60,7 +61,6 @@ fun SolicitarScreen(
                     .padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Header del equipo
                 Card(
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
@@ -93,9 +93,8 @@ fun SolicitarScreen(
                     }
                 }
 
-                // Formulario
                 Text(
-                    "Datos del prestamo",
+                    "Datos del préstamo",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary
@@ -120,7 +119,7 @@ fun SolicitarScreen(
                 OutlinedTextField(
                     value = proposito,
                     onValueChange = { if (it.length <= 180) proposito = it },
-                    label = { Text("Proposito") },
+                    label = { Text("Propósito") },
                     leadingIcon = {
                         Icon(
                             Icons.Default.Description,
@@ -144,7 +143,7 @@ fun SolicitarScreen(
                 OutlinedTextField(
                     value = horasTexto,
                     onValueChange = { horasTexto = it.filter(Char::isDigit).take(2) },
-                    label = { Text("Duracion estimada (horas)") },
+                    label = { Text("Duración estimada (horas)") },
                     leadingIcon = {
                         Icon(
                             Icons.Default.Schedule,
@@ -160,7 +159,6 @@ fun SolicitarScreen(
 
                 Spacer(Modifier.height(8.dp))
 
-                // Botón guardar
                 Button(
                     onClick = {
                         onGuardar(
@@ -197,7 +195,6 @@ fun SolicitarScreen(
                     }
                 }
 
-                // Mensaje de error
                 state.mensaje?.let { mensaje ->
                     Card(
                         shape = RoundedCornerShape(12.dp),
