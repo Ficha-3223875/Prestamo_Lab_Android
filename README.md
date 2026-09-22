@@ -6,79 +6,80 @@
 
 ## 🏷️ Badges
 
-![API](https://img.shields.io/badge/API-Android%2026%2B-green?logo=android)
-![Kotlin](https://img.shields.io/badge/Kotlin-2.x-purple?logo=kotlin)
+![API](https://img.shields.io/badge/API-Android%2024%2B-green?logo=android)
+![Kotlin](https://img.shields.io/badge/Kotlin-2.0-purple?logo=kotlin)
+![Version](https://img.shields.io/badge/Version-0.6.0-blue)
 ![Licencia](https://img.shields.io/badge/Licencia-Académica-blue)
-![Build](https://img.shields.io/badge/Build-Sin%20CI%20configurado-lightgrey)
-
-> **Nota:** Los badges de versión de API, Kotlin y licencia son referenciales y pueden ajustarse a la configuración real del proyecto. El proyecto no cuenta con un flujo de integración continua configurado.
+![CI](https://img.shields.io/badge/CI-GitHub%20Actions-success)
 
 ---
 
 ## 📱 Descripción
 
-**PréstamoLab CTMA** es una aplicación móvil Android desarrollada con Kotlin y Jetpack Compose que permite gestionar el catálogo de equipos de laboratorio y las solicitudes de préstamo. La aplicación ofrece una interfaz moderna basada en Material 3, navegación mediante una barra inferior y una arquitectura que utiliza ViewModel, StateFlow y un repositorio en memoria para gestionar la información durante la ejecución.
+**PréstamoLab CTMA** es una aplicación móvil Android desarrollada con Kotlin y Jetpack Compose para gestionar el catálogo de equipos de laboratorio y las solicitudes de préstamo, incluyendo el registro de devoluciones con evidencia fotográfica.
 
-El proyecto tiene un enfoque académico y está orientado a la práctica de desarrollo de aplicaciones móviles, gestión de estados, navegación y pruebas unitarias.
+El proyecto sigue una arquitectura local-first: **Room** es la fuente canónica local, **DataStore** guarda las preferencias del usuario y **Retrofit/OkHttp** sincronizan con el servicio remoto. Incluye capacidades del dispositivo (Photo Picker, GPS y notificaciones), seguridad (HTTPS y token cifrado en Android Keystore) e integración continua con GitHub Actions.
+
+La aplicación es parte de un proyecto académico para practicar desarrollo móvil Android, Scrum, prueba de software y arquitectura.
 
 ---
 
 ## ✨ Funcionalidades principales
 
-* 📦 Visualización del catálogo de equipos de laboratorio.
-* 📝 Creación de solicitudes de préstamo.
-* 📋 Consulta de las solicitudes realizadas en la sección **Mis solicitudes**.
-* ❌ Cancelación de solicitudes de préstamo.
-* 🧭 Navegación mediante una barra inferior con dos pestañas:
-
-  * **Equipos:** catálogo de equipos disponibles.
-  * **Solicitudes:** consulta de mis solicitudes.
-* ✅ Validación de los datos de las solicitudes.
-* ⚠️ Gestión de mensajes de error y confirmación mediante el estado de la interfaz.
-* 🧠 Gestión del estado de la aplicación con ViewModel y StateFlow.
-* 🧪 Pruebas unitarias de las validaciones, el repositorio y el ViewModel.
+* 📦 Visualización del catálogo de equipos con **filtro por categoría** persistido en DataStore.
+* 🔍 Detalle de equipo e información de disponibilidad.
+* 📝 Creación de solicitudes de préstamo (con validaciones y captura opcional de ubicación GPS).
+* 📋 Consulta, cancelación y **registro de devolución con evidencia fotográfica** (Photo Picker).
+* ☁️ Sincronización local-first con el servicio remoto (Retrofit/OkHttp + MockWebServer en pruebas).
+* 🧭 Navegación con barra inferior (Equipos / Solicitudes).
+* 💾 Persistencia local con Room (catálogo y solicitudes sobreviven al reinicio).
+* 📱 Capacidades del dispositivo: **GPS**, **Photo Picker** y **notificaciones** de recordatorio.
+* 🔒 Seguridad: HTTPS obligatorio, token cifrado en Android Keystore y permisos de mínimo privilegio.
+* 🧠 Estados reactivos Loading / Content / Empty / Error con ViewModel y StateFlow.
+* 🤖 CI con GitHub Actions (build, unit tests, lint).
 
 ---
 
 ## 🛠️ Tecnologías utilizadas
 
-<p align="left">
-  <img src="https://img.shields.io/badge/Kotlin-2.x-purple?logo=kotlin&logoColor=white" alt="Kotlin" />
-  <img src="https://img.shields.io/badge/Jetpack%20Compose-UI-4285F4?logo=jetpackcompose&logoColor=white" alt="Jetpack Compose" />
-  <img src="https://img.shields.io/badge/Material%203-Design-757575?logo=materialdesign&logoColor=white" alt="Material 3" />
-  <img src="https://img.shields.io/badge/Navigation%20Compose-Navigation-3DDC84?logo=android&logoColor=white" alt="Navigation Compose" />
-  <img src="https://img.shields.io/badge/ViewModel%20%2B%20StateFlow-State%20Management-FF6F00?logo=kotlin&logoColor=white" alt="ViewModel y StateFlow" />
-  <img src="https://img.shields.io/badge/InMemoryRepository-Data%20Layer-607D8B" alt="InMemoryRepository" />
-  <img src="https://img.shields.io/badge/JUnit%204-Unit%20Testing-25A162?logo=junit5&logoColor=white" alt="JUnit 4" />
-</p>
-
-| Tecnología             | Uso en el proyecto                                           |
-| ---------------------- | ------------------------------------------------------------ |
-| **Kotlin**             | Lenguaje principal de desarrollo.                            |
-| **Jetpack Compose**    | Construcción de la interfaz de usuario declarativa.          |
-| **Material 3**         | Componentes visuales y diseño de la aplicación.              |
-| **Navigation Compose** | Navegación entre las pantallas de Equipos y Solicitudes.     |
-| **ViewModel**          | Gestión de la lógica y el estado de la interfaz.             |
-| **StateFlow**          | Exposición reactiva del estado de la aplicación.             |
-| **InMemoryRepository** | Almacenamiento temporal de equipos y solicitudes en memoria. |
-| **JUnit 4**            | Ejecución de pruebas unitarias.                              |
+| Tecnología | Uso en el proyecto |
+| ---------- | ------------------ |
+| **Kotlin 2.0 / Corrutinas / Flow** | Lenguaje y programación asíncrona reactiva. |
+| **Jetpack Compose + Material 3** | Interfaz de usuario declarativa. |
+| **Navigation Compose** | Navegación entre pantallas. |
+| **ViewModel + StateFlow** | Lógica de presentación y estado observable. |
+| **Room 2.6.1 (KSP)** | Persistencia local (catálogo y solicitudes). |
+| **DataStore Preferences** | Preferencias del usuario (filtro de categoría). |
+| **Retrofit 2.11 + OkHttp 4.12** | Consumo de la API REST. |
+| **Android Keystore (AES/GCM)** | Cifrado del token de sesión. |
+| **JUnit 4 + coroutines-test + MockWebServer** | Pruebas unitarias e integración HTTP. |
+| **GitHub Actions** | Integración continua. |
 
 ---
 
 ## 🧩 Modelo de datos
 
-El modelo representa la información necesaria para gestionar los préstamos de equipos. Los nombres y tipos exactos deben coincidir con las clases implementadas en el proyecto.
+### Equipo
+| Campo | Tipo | Descripción |
+| ----- | ---- | ----------- |
+| `id` | `Long` | Identificador del equipo. |
+| `nombre` | `String` | Nombre del equipo. |
+| `categoria` | `CategoriaEquipo` | COMPUTO, AUDIOVISUAL, REDES, ELECTRONICA u otra. |
+| `estado` | `EstadoEquipo` | DISPONIBLE, RESERVADO o PRESTADO. |
 
-| Campo           | Tipo     | Descripción                                                           |
-| --------------- | -------- | --------------------------------------------------------------------- |
-| `id`            | `String` | Identificador del equipo o de la solicitud, según el modelo.          |
-| `nombre`        | `String` | Nombre o título del elemento representado.                            |
-| `destino`       | `String` | Destino indicado en la solicitud de préstamo.                         |
-| `proposito`     | `String` | Propósito o motivo del préstamo.                                      |
-| `duracionHoras` | `Int`    | Duración solicitada, expresada en horas.                              |
-| `estado`        | `String` | Estado de la solicitud, según los estados definidos en la aplicación. |
-
-> **Importante:** Esta tabla documenta los campos funcionales conocidos del proyecto. Si los modelos Kotlin utilizan nombres diferentes, tipos específicos o campos adicionales, deben reflejarse en esta sección para mantener la documentación sincronizada con el código.
+### Solicitud de préstamo
+| Campo | Tipo | Descripción |
+| ----- | ---- | ----------- |
+| `id` | `Long` | Identificador de la solicitud. |
+| `equipoId` | `Long` | Equipo solicitado. |
+| `ambienteDestino` / `proposito` | `String` | Destino y propósito del préstamo. |
+| `duracionHoras` | `Int` | Duración solicitada (1–8 h). |
+| `estado` | `EstadoSolicitud` | SOLICITADA, ENTREGADA, DEVUELTA o CANCELADA. |
+| `fechaSolicitud` / `fechaLimiteDevolucion` | `Long` | Fechas (epoch millis). |
+| `evidenciaUri` | `String?` | URI de la evidencia fotográfica. |
+| `evidenciaEstado` | `EstadoEvidencia` | LOCAL, SUBIENDO, SINCRONIZADA o FALLIDA. |
+| `latitud` / `longitud` | `Double?` | Ubicación GPS registrada al solicitar. |
+| `sincronizado` | `Boolean` | Indicador de sincronización remota. |
 
 ---
 
@@ -86,212 +87,121 @@ El modelo representa la información necesaria para gestionar los préstamos de 
 
 1. El campo **destino** es obligatorio y no puede estar vacío.
 2. El campo **propósito** debe contener entre **10 y 180 caracteres**.
-3. La duración del préstamo debe estar entre **1 y 8 horas**, incluyendo ambos límites.
-4. Una solicitud no debe guardarse dos veces durante una misma operación de guardado.
-5. No se deben realizar operaciones sobre equipos o solicitudes cuyos identificadores no existan.
-6. El repositorio debe gestionar los flujos de creación y cancelación de solicitudes.
-7. El ViewModel debe mostrar mensajes de error cuando una operación no sea válida.
-8. Los mensajes de estado deben poder limpiarse después de mostrarse.
-9. El estado inicial de la interfaz debe representar correctamente la información disponible al iniciar la aplicación.
-
----
-
-## 📸 Capturas de pantalla
-
-<!--
-Añadir aquí las capturas reales de la aplicación.
-
-Ejemplo de organización:
-
-![Catálogo de equipos](docs/screenshots/equipos.png)
-![Mis solicitudes](docs/screenshots/solicitudes.png)
-![Formulario de préstamo](docs/screenshots/formulario.png)
-
-No se incluyen imágenes hasta disponer de las capturas reales del proyecto.
--->
+3. La duración del préstamo debe estar entre **1 y 8 horas**, inclusive.
+4. Solo un equipo **DISPONIBLE** puede solicitarse; la solicitud lo marca **RESERVADO**.
+5. Un equipo ya solicitado/repetido no puede tener dos préstamos activos.
+6. Solo una solicitud **ENTREGADA** puede registrar devolución (con o sin evidencia).
+7. La devolución marca la solicitud **DEVUELTA** y el equipo **DISPONIBLE**.
+8. La evidencia pasa por estados **LOCAL → SUBIENDO → SINCRONIZADA/FALLIDA**.
+9. Los errores de red/HTTP no rompen el estado de la UI y se muestran como mensajes recuperables.
 
 ---
 
 ## 📁 Estructura del proyecto
 
-La siguiente estructura es una guía de organización basada en los componentes conocidos del proyecto. Debe ajustarse a las carpetas y archivos que existan realmente en el repositorio.
-
 ```text
 PrestamoLab-CTMA/
 │
-├── app/
-│   └── src/
-│       ├── main/
-│       │   ├── AndroidManifest.xml
-│       │   └── java/
-│       │       └── <paquete-del-proyecto>/
-│       │           ├── MainActivity.kt
-│       │           ├── data/
-│       │           │   └── InMemoryPrestamoRepository.kt
-│       │           ├── model/
-│       │           │   └── <modelos-del-proyecto>.kt
-│       │           ├── ui/
-│       │           │   ├── screens/
-│       │           │   │   ├── <pantalla-equipos>.kt
-│       │           │   │   ├── <pantalla-solicitudes>.kt
-│       │           │   │   └── <pantalla-formulario>.kt
-│       │           │   ├── navigation/
-│       │           │   │   └── <navegacion>.kt
-│       │           │   └── theme/
-│       │           │       └── <archivos-de-tema>.kt
-│       │           └── viewmodel/
-│       │               └── PrestamoViewModel.kt
-│       │
-│       └── test/
-│           └── java/
-│               └── <paquete-del-proyecto>/
-│                   ├── ValidacionesTest.kt
-│                   ├── InMemoryPrestamoRepositoryTest.kt
-│                   └── PrestamoViewModelTest.kt
-│
-├── docs/
-│   ├── <documentacion-del-proyecto>
-│   └── <otros-documentos>
-│
-├── build.gradle.kts
-├── settings.gradle.kts
-├── gradle.properties
-├── gradlew
-├── gradlew.bat
-└── README.md
+├── .github/workflows/
+│   └── android-ci.yml              # CI: assembleDebug, testDebugUnitTest, lintDebug
+├── app/src/
+│   ├── main/java/com/example/prestamolab/
+│   │   ├── MainActivity.kt
+│   │   ├── PrestamoLabApplication.kt
+│   │   ├── RecordatorioReceiver.kt
+│   │   ├── di/AppContainer.kt
+│   │   ├── model/                  # Equipo, SolicitudPrestamo, Estados
+│   │   ├── data/
+│   │   │   ├── local/              # Entities, DAOs, PrestamoDatabase, UserPreferencesStore
+│   │   │   ├── remote/             # Dtos, Mappers, PrestamoApiService, NetworkModule
+│   │   │   ├── repository/         # PrestamoRepository (+Room / InMemory)
+│   │   │   └── security/TokenStore.kt
+│   │   ├── ui/                     # PrestamoLabApp, screens/, theme/
+│   │   ├── util/                   # UbicacionProvider, NotificadorRecordatorio
+│   │   └── viewmodel/              # PrestamoViewModel (+Factory)
+│   └── test/java/com/example/prestamolab/
+│       └── ValidacionesTest.kt     # Pruebas de validaciones
+└── docs/                           # Matrices, informes, backlogs, suites de pruebas
 ```
-
-> Los elementos entre `< >` son marcadores de posición. Reemplázalos por los nombres reales de los paquetes, archivos y carpetas del repositorio. No representan archivos confirmados del proyecto.
 
 ---
 
 ## ⚙️ Requisitos previos
 
-Para ejecutar PréstamoLab CTMA se necesita:
-
-* Android Studio instalado.
-* JDK compatible con la versión de Gradle y Android Gradle Plugin del proyecto.
-* Android SDK configurado.
-* Un emulador Android o un dispositivo físico con depuración USB habilitada.
-* Gradle Wrapper incluido en el repositorio (`gradlew` y `gradlew.bat`).
-* Conexión a internet para descargar las dependencias durante la primera compilación.
-
-> La versión exacta de Android, Kotlin, Gradle y el SDK debe verificarse en los archivos de configuración del proyecto.
+* Android Studio (con SDK compatible, `compileSdk 35`).
+* JDK 21 compatible con Gradle 8.9 y AGP 8.7.
+* Dispositivo/emulador Android (API 24+), con GPS activo para probar la ubicación.
+* Internet para descargar dependencias en la primera compilación.
 
 ---
 
-## 🚀 Cómo compilar y ejecutar la aplicación
+## 🚀 Cómo compilar y ejecutar
 
-1. Clonar el repositorio:
+```powershell
+cd PrestamoLab-CTMA
+.\gradlew.bat assembleDebug
+```
 
-   ```powershell
-   git clone <URL_DEL_REPOSITORIO>
-   ```
-
-2. Entrar en la carpeta del proyecto:
-
-   ```powershell
-   cd PrestamoLab-CTMA
-   ```
-
-3. Abrir el proyecto en Android Studio.
-
-4. Esperar a que Gradle sincronice las dependencias.
-
-5. Conectar un dispositivo Android o iniciar un emulador.
-
-6. Ejecutar la aplicación desde Android Studio utilizando el botón **Run ▶**.
-
-7. También es posible compilar el proyecto desde PowerShell:
-
-   ```powershell
-   .\gradlew.bat assembleDebug
-   ```
+Ejecutar desde Android Studio con el botón **Run ▶**. El APK de depuración queda en `app/build/outputs/apk/debug/`.
 
 ---
 
-## 🧪 Cómo ejecutar las pruebas unitarias
+## 🔌 API REST y ambientes
 
-Desde PowerShell, ubicado en la raíz del proyecto, ejecuta:
+La URL base se configura por ambiente mediante `BuildConfig.API_BASE_URL` (sin exponer secretos):
 
-### Ejecutar todas las pruebas unitarias
+| BuildType | URL |
+|-----------|-----|
+| `debug` | `http://10.0.2.2:8080/api/v1/` (emulador → host local) |
+| `release` | `https://api.prestamolab.example.com/api/v1/` (placeholder) |
 
-```powershell
-.\gradlew.bat test
-```
-
-### Ejecutar las pruebas de validaciones
-
-```powershell
-.\gradlew.bat test --tests "*ValidacionesTest"
-```
-
-### Ejecutar las pruebas del repositorio en memoria
-
-```powershell
-.\gradlew.bat test --tests "*InMemoryPrestamoRepositoryTest"
-```
-
-### Ejecutar las pruebas del ViewModel
-
-```powershell
-.\gradlew.bat test --tests "*PrestamoViewModelTest"
-```
-
-### Ejecutar una prueba específica
-
-```powershell
-.\gradlew.bat test --tests "*ValidacionesTest.nombreDelTest"
-```
-
-> Reemplaza `nombreDelTest` por el nombre real del método de prueba.
+La sincronización manual (botón en el catálogo) actualiza Room desde el servicio. Sin servicio disponible, la aplicación funciona con la semilla local (local-first). Más detalle en `docs/informe-tecnico.md`.
 
 ---
 
-## 📊 Cómo consultar los reportes de pruebas
+## 🧪 Pruebas
 
-Después de ejecutar las pruebas, el reporte HTML se encuentra normalmente en:
+La estrategia prevista (los tests los ejecuta el equipo del proyecto):
 
-```text
-app/build/reports/tests/testDebugUnitTest/index.html
-```
+* **Unitarias**: `.\gradlew.bat testDebugUnitTest`
+* **Prueba concreta**: `.\gradlew.bat test --tests "*ValidacionesTest"`
+* **Instrumentadas (dispositivo/emulador)**: `.\gradlew.bat connectedAndroidTest` (Room in-memory + recorrido UI Compose).
 
-Para abrirlo desde PowerShell:
+Reportes HTML: `app/build/reports/tests/testDebugUnitTest/index.html`.
 
-```powershell
-Start-Process ".\app\build\reports\tests\testDebugUnitTest\index.html"
-```
+---
 
-> La ruta puede variar según la configuración de Gradle y la variante de compilación utilizada.
+## 🤖 Integración continua
+
+`.github/workflows/android-ci.yml` ejecuta en cada push/PR:
+
+1. `assembleDebug`
+2. `testDebugUnitTest`
+3. `lintDebug`
+
+y publica el artefacto `app-debug.apk`.
 
 ---
 
 ## 📚 Documentación
 
-La carpeta `docs/` está destinada a contener la documentación complementaria del proyecto.
+La carpeta `docs/` contiene la documentación del proyecto:
 
-Entre los documentos que pueden formar parte de esta carpeta se encuentran:
-
-* Documentación técnica de la aplicación.
-* Guías o instrucciones de uso.
-* Documentos académicos del proyecto.
-* Evidencias y material de apoyo.
-* Capturas de pantalla, si se incorporan al repositorio.
-
-> Esta lista es orientativa. Solo deben incluirse en el README los documentos y archivos que existan realmente dentro de `docs/`.
+* `matriz-trazabilidad.md` — trazabilidad requisitos → diseño → código → verificación.
+* `informe-tecnico.md` — informe técnico de los incrementos v0.2.0 a v0.6.0.
+* `product-backlog.md`, `sprint-backlog.md`, `sprint-review.md` — gestión de sprints.
+* `matriz-riesgos.md`, `registro-defectos.md`, `suite-pruebas.md`, `bitacora-pruebas.md` — riesgos y pruebas.
 
 ---
 
 ## 📝 Notas
 
-* Los datos utilizados por la aplicación son **sintéticos** y se emplean únicamente con fines académicos y de prueba.
-* El proyecto utiliza un repositorio **en memoria (`InMemoryRepository`)**.
-* La información no se persiste de forma permanente y puede perderse al reiniciar la aplicación.
-* El proyecto **no utiliza una base de datos**.
-* El proyecto **no cuenta con una API REST**.
-* El proyecto **no tiene un flujo de integración continua (CI)** configurado.
-* Las pruebas unitarias se ejecutan localmente mediante JUnit 4.
-* La aplicación está orientada al aprendizaje de Kotlin, Jetpack Compose, navegación, gestión de estados y pruebas unitarias.
+* La información se **persiste localmente** con Room/DataStore.
+* La aplicación **sincroniza con una API REST** (Retrofit/OkHttp) de forma **local-first**.
+* Solo se usa **HTTPS** en producción; token cifrado en Android Keystore.
+* Permisos de **mínimo privilegio** solicitados en tiempo de ejecución (ubicación y notificaciones).
+* Los datos son **sintéticos**, con fines académicos y de prueba.
+* **Uso de IA**: la herramienta de desarrollo (opencode) asistió en la implementación de la capa de datos, la integración REST, las capacidades del dispositivo y la documentación; todo el código fue compilado, revisado y es modificable por el equipo.
 
 ---
 

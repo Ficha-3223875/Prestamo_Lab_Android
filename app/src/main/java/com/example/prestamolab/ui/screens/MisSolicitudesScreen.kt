@@ -15,7 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.prestamolab.model.EstadoSolicitud
 import com.example.prestamolab.model.SolicitudPrestamo
-import com.example.prestamolab.ui.theme.*
+import com.example.prestamolab.viewmodel.EstadoPagina
 import com.example.prestamolab.viewmodel.PrestamoUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,60 +39,36 @@ fun MisSolicitudesScreen(
             )
         }
     ) { padding ->
-        if (state.solicitudes.isEmpty()) {
-            EmptyState(Modifier.padding(padding))
-            return@Scaffold
-        }
+        when (state.estadoSolicitudes) {
+            EstadoPagina.CARGANDO -> CargandoState(Modifier.padding(padding))
+            EstadoPagina.ERROR -> ErrorState(
+                "No se pudo cargar el listado de solicitudes.",
+                Modifier.padding(padding)
+            )
+            EstadoPagina.VACIO -> EmptyState(
+                message = "Todavia no tienes solicitudes de prestamo.",
+                modifier = Modifier.padding(padding)
+            )
+            EstadoPagina.CONTENIDO -> LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                item {
+                    Text(
+                        "${state.solicitudes.size} solicitud(es) registrada(s)",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                }
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            item {
-                Text(
-                    "${state.solicitudes.size} solicitud(es) registrada(s)",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
+                items(state.solicitudes, key = { it.id }) { solicitud ->
+                    SolicitudCard(solicitud, onSolicitudClick)
+                }
             }
-
-            items(state.solicitudes, key = { it.id }) { solicitud ->
-                SolicitudCard(solicitud, onSolicitudClick)
-            }
-        }
-    }
-}
-
-@Composable
-private fun EmptyState(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(
-                imageVector = Icons.Default.Assignment,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
-                modifier = Modifier.size(80.dp)
-            )
-            Spacer(Modifier.height(16.dp))
-            Text(
-                "Sin solicitudes",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(Modifier.height(8.dp))
-            Text(
-                "Todavia no tienes solicitudes de prestamo.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-            )
         }
     }
 }
@@ -115,7 +91,6 @@ private fun SolicitudCard(
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            // Header con ID y estado
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -131,7 +106,6 @@ private fun SolicitudCard(
 
             Spacer(Modifier.height(12.dp))
 
-            // Info rows
             InfoSolicitudRow(
                 icon = Icons.Default.Tag,
                 text = "Equipo ID: ${solicitud.equipoId}"
@@ -147,7 +121,6 @@ private fun SolicitudCard(
                 text = "${solicitud.duracionHoras} horas"
             )
 
-            // Chevron
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -189,12 +162,12 @@ private fun InfoSolicitudRow(
 @Composable
 fun EstadoSolicitudChip(estado: EstadoSolicitud) {
     val (backgroundColor, textColor) = when (estado) {
-        EstadoSolicitud.SOLICITADA -> EstadoSolicitadaBg to EstadoSolicitada
-        EstadoSolicitud.APROBADA -> EstadoAprobadaBg to EstadoAprobada
-        EstadoSolicitud.ENTREGADA -> EstadoEntregadaBg to EstadoEntregada
-        EstadoSolicitud.DEVUELTA -> EstadoDevueltaBg to EstadoDevuelta
-        EstadoSolicitud.CANCELADA -> EstadoCanceladaBg to EstadoCancelada
-        EstadoSolicitud.RECHAZADA -> EstadoRechazadaBg to EstadoRechazada
+        EstadoSolicitud.SOLICITADA -> com.example.prestamolab.ui.theme.EstadoSolicitadaBg to com.example.prestamolab.ui.theme.EstadoSolicitada
+        EstadoSolicitud.APROBADA -> com.example.prestamolab.ui.theme.EstadoAprobadaBg to com.example.prestamolab.ui.theme.EstadoAprobada
+        EstadoSolicitud.ENTREGADA -> com.example.prestamolab.ui.theme.EstadoEntregadaBg to com.example.prestamolab.ui.theme.EstadoEntregada
+        EstadoSolicitud.DEVUELTA -> com.example.prestamolab.ui.theme.EstadoDevueltaBg to com.example.prestamolab.ui.theme.EstadoDevuelta
+        EstadoSolicitud.CANCELADA -> com.example.prestamolab.ui.theme.EstadoCanceladaBg to com.example.prestamolab.ui.theme.EstadoCancelada
+        EstadoSolicitud.RECHAZADA -> com.example.prestamolab.ui.theme.EstadoRechazadaBg to com.example.prestamolab.ui.theme.EstadoRechazada
     }
 
     Surface(
