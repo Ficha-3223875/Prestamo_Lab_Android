@@ -1,5 +1,9 @@
 package com.example.prestamolab.ui.screens
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,9 +16,11 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.example.prestamolab.model.Equipo
 import com.example.prestamolab.viewmodel.PrestamoUiState
 
@@ -24,12 +30,35 @@ fun SolicitarScreen(
     equipo: Equipo?,
     state: PrestamoUiState,
     onBack: () -> Unit,
+    onCapturarUbicacion: () -> Unit,
     onGuardar: (String, String, Int) -> Unit,
     onDismissMessage: () -> Unit
 ) {
     var destino by rememberSaveable { mutableStateOf("") }
     var proposito by rememberSaveable { mutableStateOf("") }
     var horasTexto by rememberSaveable { mutableStateOf("1") }
+
+    // Permiso de ubicación solicitado solo cuando se necesita (mínimo privilegio)
+    val context = LocalContext.current
+    val permisoUbicacionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { concedido ->
+        if (concedido) onCapturarUbicacion()
+    }
+    fun capturarUbicacion() {
+        val concedido = ContextCompat.checkSelfPermission(
+            context, Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(
+                context, Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+
+        if (concedido) {
+            onCapturarUbicacion()
+        } else {
+            permisoUbicacionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -60,7 +89,6 @@ fun SolicitarScreen(
                     .padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Header del equipo
                 Card(
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
@@ -93,7 +121,6 @@ fun SolicitarScreen(
                     }
                 }
 
-                // Formulario
                 Text(
                     "Datos del prestamo",
                     style = MaterialTheme.typography.titleMedium,
@@ -158,9 +185,49 @@ fun SolicitarScreen(
                     shape = RoundedCornerShape(12.dp)
                 )
 
+                // Capacidad del dispositivo: geolocalización (GPS)
+                Card(
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    )
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            "Ubicacion (capacidad GPS)",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            state.ubicacionActual
+                                ?: "Agrega la ubicacion desde la que se realiza el prestamo (opcional).",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (state.ubicacionActual == null)
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            else MaterialTheme.colorScheme.onSurface
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        OutlinedButton(
+                            onClick = { capturarUbicacion() },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Icon(
+                                Icons.Default.MyLocation,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                if (state.ubicacionActual == null) "Usar mi ubicacion actual"
+                                else "Actualizar ubicacion"
+                            )
+                        }
+                    }
+                }
+
                 Spacer(Modifier.height(8.dp))
 
-                // Botón guardar
                 Button(
                     onClick = {
                         onGuardar(
@@ -169,7 +236,7 @@ fun SolicitarScreen(
                             horasTexto.toIntOrNull() ?: 0
                         )
                     },
-                    enabled = !state.guardando && destino.isNotBlank() && proposito.isNotBlank(),
+                    enabled = !state.operacionEnCurso && destino.isNotBlank() && proposito.isNotBlank(),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
@@ -178,7 +245,7 @@ fun SolicitarScreen(
                         containerColor = MaterialTheme.colorScheme.primary
                     )
                 ) {
-                    if (state.guardando) {
+                    if (state.operacionEnCurso) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(20.dp),
                             color = MaterialTheme.colorScheme.onPrimary,
@@ -197,7 +264,6 @@ fun SolicitarScreen(
                     }
                 }
 
-                // Mensaje de error
                 state.mensaje?.let { mensaje ->
                     Card(
                         shape = RoundedCornerShape(12.dp),
