@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,6 +34,9 @@ fun CatalogoScreen(
     onSincronizar: () -> Unit,
     onFiltroCategoria: (CategoriaEquipo?) -> Unit
 ) {
+    var fotoUri by rememberSaveable { mutableStateOf<String?>(null) }
+    val lanzarCamara = recordarCapturaCamara { uri -> fotoUri = uri }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -51,6 +55,15 @@ fun CatalogoScreen(
                     }
                 },
                 actions = {
+                    IconButton(
+                        onClick = { lanzarCamara() }
+                    ) {
+                        Icon(
+                            Icons.Default.PhotoCamera,
+                            contentDescription = "Tomar foto",
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                     IconButton(
                         onClick = onSincronizar,
                         enabled = !state.sincronizando
@@ -138,6 +151,29 @@ fun CatalogoScreen(
                 }
             }
         }
+    }
+
+    fotoUri?.let { uri ->
+        AlertDialog(
+            onDismissRequest = { fotoUri = null },
+            title = { Text("Foto capturada") },
+            text = {
+                Column {
+                    EvidenciaPreview(uri)
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        "URI: $uri",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { fotoUri = null }) {
+                    Text("Cerrar")
+                }
+            }
+        )
     }
 }
 
