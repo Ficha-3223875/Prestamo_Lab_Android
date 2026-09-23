@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,8 +38,10 @@ fun SolicitudDetalleScreen(
     onCancelar: () -> Unit,
     onRegistrarDevolucion: (String?) -> Unit
 ) {
-    var evidenciaSeleccionada by remember { mutableStateOf<String?>(null) }
-    var mostrarConfirmacion by remember { mutableStateOf(false) }
+    var evidenciaSeleccionada by rememberSaveable { mutableStateOf<String?>(null) }
+    var mostrarConfirmacion by rememberSaveable { mutableStateOf(false) }
+
+    val lanzarCamara = recordarCapturaCamara { uri -> evidenciaSeleccionada = uri }
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
@@ -254,35 +257,56 @@ fun SolicitudDetalleScreen(
                     }
 
                     EstadoSolicitud.ENTREGADA -> {
-                        // Flujo de devolucion con evidencia fotografica (Photo Picker)
-                        Button(
-                            onClick = {
-                                photoPickerLauncher.launch(
-                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                                )
-                            },
+                        // Flujo de devolucion con evidencia fotografica (camara o galeria)
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.secondary
-                            )
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Icon(
-                                Icons.Default.AddAPhoto,
-                                contentDescription = null,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(Modifier.width(8.dp))
-                            Text(
-                                if (evidenciaSeleccionada == null) "Adjuntar evidencia fotografica"
-                                else "Evidencia seleccionada",
-                                fontWeight = FontWeight.SemiBold
-                            )
+                            OutlinedButton(
+                                onClick = { lanzarCamara() },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(56.dp),
+                                shape = RoundedCornerShape(16.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.AddAPhoto,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text("Tomar foto", fontWeight = FontWeight.SemiBold)
+                            }
+
+                            Button(
+                                onClick = {
+                                    photoPickerLauncher.launch(
+                                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                    )
+                                },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(56.dp),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondary
+                                )
+                            ) {
+                                Icon(
+                                    Icons.Default.PhotoLibrary,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text("Galeria", fontWeight = FontWeight.SemiBold)
+                            }
                         }
 
-                        evidenciaSeleccionada?.let {
+                        evidenciaSeleccionada?.let { uri ->
+                            EvidenciaPreview(uri)
+                            Spacer(Modifier.height(4.dp))
                             Text(
-                                "URI: $it",
+                                "URI: $uri",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
