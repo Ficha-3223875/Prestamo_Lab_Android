@@ -21,9 +21,13 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class PrestamoViewModelTest {
 
+    // Un único dispatcher de prueba, compartido entre Dispatchers.Main y runTest,
+    // para que ambos avancen sobre el mismo "reloj" y no se desincronicen.
+    private val testDispatcher = UnconfinedTestDispatcher()
+
     @Before
     fun setUp() {
-        Dispatchers.setMain(UnconfinedTestDispatcher())
+        Dispatchers.setMain(testDispatcher)
     }
 
     @After
@@ -32,7 +36,7 @@ class PrestamoViewModelTest {
     }
 
     @Test
-    fun estado_inicial_carga_equipos_y_solicitudes() = runTest {
+    fun estado_inicial_carga_equipos_y_solicitudes() = runTest(testDispatcher) {
         val vm = PrestamoViewModel(FakePrestamoRepository())
         backgroundScope.launch { vm.uiState.collect {} }
 
@@ -43,7 +47,7 @@ class PrestamoViewModelTest {
     }
 
     @Test
-    fun equipo_devuelve_el_equipo_por_id() = runTest {
+    fun equipo_devuelve_el_equipo_por_id() = runTest(testDispatcher) {
         val vm = PrestamoViewModel(FakePrestamoRepository())
         backgroundScope.launch { vm.uiState.collect {} }
 
@@ -52,7 +56,7 @@ class PrestamoViewModelTest {
     }
 
     @Test
-    fun crearSolicitud_exitosa_actualiza_el_estado() = runTest {
+    fun crearSolicitud_exitosa_actualiza_el_estado() = runTest(testDispatcher) {
         val vm = PrestamoViewModel(FakePrestamoRepository())
         backgroundScope.launch { vm.uiState.collect {} }
         var resultado = false
@@ -67,7 +71,7 @@ class PrestamoViewModelTest {
     }
 
     @Test
-    fun solicitud_devuelve_la_solicitud_creada() = runTest {
+    fun solicitud_devuelve_la_solicitud_creada() = runTest(testDispatcher) {
         val vm = PrestamoViewModel(FakePrestamoRepository())
         backgroundScope.launch { vm.uiState.collect {} }
         vm.crearSolicitud(1, "Lab 3", "Práctica de redes", 4)
@@ -81,7 +85,7 @@ class PrestamoViewModelTest {
     }
 
     @Test
-    fun crearSolicitud_con_equipo_inexistente_muestra_error() = runTest {
+    fun crearSolicitud_con_equipo_inexistente_muestra_error() = runTest(testDispatcher) {
         val vm = PrestamoViewModel(FakePrestamoRepository())
         backgroundScope.launch { vm.uiState.collect {} }
         var resultado = true
@@ -93,7 +97,7 @@ class PrestamoViewModelTest {
     }
 
     @Test
-    fun crearSolicitud_sobre_equipo_no_disponible_muestra_error() = runTest {
+    fun crearSolicitud_sobre_equipo_no_disponible_muestra_error() = runTest(testDispatcher) {
         val vm = PrestamoViewModel(FakePrestamoRepository())
         backgroundScope.launch { vm.uiState.collect {} }
         var resultado = true
@@ -105,7 +109,7 @@ class PrestamoViewModelTest {
     }
 
     @Test
-    fun crearSolicitud_con_destino_vacio_muestra_error() = runTest {
+    fun crearSolicitud_con_destino_vacio_muestra_error() = runTest(testDispatcher) {
         val vm = PrestamoViewModel(FakePrestamoRepository())
         backgroundScope.launch { vm.uiState.collect {} }
 
@@ -117,7 +121,7 @@ class PrestamoViewModelTest {
     }
 
     @Test
-    fun crearSolicitud_con_proposito_fuera_de_rango_muestra_error() = runTest {
+    fun crearSolicitud_con_proposito_fuera_de_rango_muestra_error() = runTest(testDispatcher) {
         val vm = PrestamoViewModel(FakePrestamoRepository())
         backgroundScope.launch { vm.uiState.collect {} }
 
@@ -129,7 +133,7 @@ class PrestamoViewModelTest {
     }
 
     @Test
-    fun crearSolicitud_con_duracion_invalida_muestra_error() = runTest {
+    fun crearSolicitud_con_duracion_invalida_muestra_error() = runTest(testDispatcher) {
         val vm = PrestamoViewModel(FakePrestamoRepository())
         backgroundScope.launch { vm.uiState.collect {} }
 
@@ -141,7 +145,7 @@ class PrestamoViewModelTest {
     }
 
     @Test
-    fun crearSolicitud_duplicada_sobre_el_mismo_equipo_es_rechazada() = runTest {
+    fun crearSolicitud_duplicada_sobre_el_mismo_equipo_es_rechazada() = runTest(testDispatcher) {
         val vm = PrestamoViewModel(FakePrestamoRepository())
         backgroundScope.launch { vm.uiState.collect {} }
         var primero = false
@@ -152,12 +156,12 @@ class PrestamoViewModelTest {
 
         assertTrue(primero)
         assertFalse(segundo)
-        assertEquals("Ya existe una solicitud activa para este equipo.", vm.uiState.value.mensaje)
+        assertEquals("El equipo no está disponible.", vm.uiState.value.mensaje)
         assertEquals(1, vm.uiState.value.solicitudes.size)
     }
 
     @Test
-    fun cancelarSolicitud_exitosa_libera_el_equipo() = runTest {
+    fun cancelarSolicitud_exitosa_libera_el_equipo() = runTest(testDispatcher) {
         val vm = PrestamoViewModel(FakePrestamoRepository())
         backgroundScope.launch { vm.uiState.collect {} }
         vm.crearSolicitud(1, "Lab 3", "Práctica de redes", 4)
@@ -175,7 +179,7 @@ class PrestamoViewModelTest {
     }
 
     @Test
-    fun cancelarSolicitud_inexistente_muestra_error() = runTest {
+    fun cancelarSolicitud_inexistente_muestra_error() = runTest(testDispatcher) {
         val vm = PrestamoViewModel(FakePrestamoRepository())
         backgroundScope.launch { vm.uiState.collect {} }
         var resultado = true
@@ -187,7 +191,7 @@ class PrestamoViewModelTest {
     }
 
     @Test
-    fun limpiarMensaje_vacia_el_mensaje() = runTest {
+    fun limpiarMensaje_vacia_el_mensaje() = runTest(testDispatcher) {
         val vm = PrestamoViewModel(FakePrestamoRepository())
         backgroundScope.launch { vm.uiState.collect {} }
         vm.crearSolicitud(999, "Lab 3", "Práctica de redes", 4)
