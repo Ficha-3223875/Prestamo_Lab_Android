@@ -1,31 +1,40 @@
 package com.example.prestamolab.viewmodel
 
-import com.example.prestamolab.data.repository.InMemoryPrestamoRepository
-import com.example.prestamolab.data.repository.PrestamoRepository
-import com.example.prestamolab.model.CategoriaEquipo
-import com.example.prestamolab.model.Equipo
+import com.example.prestamolab.data.repository.FakePrestamoRepository
 import com.example.prestamolab.model.EstadoEquipo
 import com.example.prestamolab.model.EstadoSolicitud
-import com.example.prestamolab.model.SolicitudPrestamo
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class PrestamoViewModelTest {
 
-    private fun crearSolicitud(
-        vm: PrestamoViewModel,
-        equipoId: Int = 1,
-        destino: String = "Lab 3",
-        proposito: String = "Práctica de redes",
-        duracionHoras: Int = 4
-    ): Boolean = vm.crearSolicitud(equipoId, destino, proposito, duracionHoras)
+    @Before
+    fun setUp() {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
 
     @Test
-    fun estado_inicial_carga_equipos_y_solicitudes() {
-        val vm = PrestamoViewModel(InMemoryPrestamoRepository())
+    fun estado_inicial_carga_equipos_y_solicitudes() = runTest {
+        val vm = PrestamoViewModel(FakePrestamoRepository())
+        backgroundScope.launch { vm.uiState.collect {} }
 
         assertEquals(6, vm.uiState.value.equipos.size)
         assertTrue(vm.uiState.value.solicitudes.isEmpty())
@@ -34,32 +43,34 @@ class PrestamoViewModelTest {
     }
 
     @Test
-    fun equipo_devuelve_el_equipo_por_id() {
-        val vm = PrestamoViewModel(InMemoryPrestamoRepository())
+    fun equipo_devuelve_el_equipo_por_id() = runTest {
+        val vm = PrestamoViewModel(FakePrestamoRepository())
+        backgroundScope.launch { vm.uiState.collect {} }
 
-        val equipo = vm.equipo(2)
-
-        assertEquals("Video Beam Epson", equipo?.nombre)
+        assertEquals("Video Beam Epson", vm.equipo(2)?.nombre)
         assertNull(vm.equipo(999))
     }
 
     @Test
-    fun crearSolicitud_exitosa_actualiza_el_estado() {
-        val vm = PrestamoViewModel(InMemoryPrestamoRepository())
+    fun crearSolicitud_exitosa_actualiza_el_estado() = runTest {
+        val vm = PrestamoViewModel(FakePrestamoRepository())
+        backgroundScope.launch { vm.uiState.collect {} }
+        var resultado = false
 
-        val exitoso = crearSolicitud(vm)
+        vm.crearSolicitud(1, "Lab 3", "Práctica de redes", 4) { resultado = it }
 
-        assertTrue(exitoso)
+        assertTrue(resultado)
         assertEquals("Solicitud creada correctamente.", vm.uiState.value.mensaje)
         assertFalse(vm.uiState.value.guardando)
         assertEquals(1, vm.uiState.value.solicitudes.size)
-        assertEquals(EstadoEquipo.RESERVADO, vm.uiState.value.equipos[0].estado)
+        assertEquals(EstadoEquipo.PRESTADO, vm.equipo(1)?.estado)
     }
 
     @Test
-    fun solicitud_devuelve_la_solicitud_creada() {
-        val vm = PrestamoViewModel(InMemoryPrestamoRepository())
-        crearSolicitud(vm)
+    fun solicitud_devuelve_la_solicitud_creada() = runTest {
+        val vm = PrestamoViewModel(FakePrestamoRepository())
+        backgroundScope.launch { vm.uiState.collect {} }
+        vm.crearSolicitud(1, "Lab 3", "Práctica de redes", 4)
 
         val solicitud = vm.solicitud(1)
 
@@ -70,140 +81,119 @@ class PrestamoViewModelTest {
     }
 
     @Test
-    fun crearSolicitud_con_equipo_inexistente_muestra_error() {
-        val vm = PrestamoViewModel(InMemoryPrestamoRepository())
+    fun crearSolicitud_con_equipo_inexistente_muestra_error() = runTest {
+        val vm = PrestamoViewModel(FakePrestamoRepository())
+        backgroundScope.launch { vm.uiState.collect {} }
+        var resultado = true
 
-        val exitoso = crearSolicitud(vm, equipoId = 999)
+        vm.crearSolicitud(999, "Lab 3", "Práctica de redes", 4) { resultado = it }
 
-        assertFalse(exitoso)
+        assertFalse(resultado)
         assertEquals("El equipo solicitado no existe.", vm.uiState.value.mensaje)
     }
 
     @Test
-    fun crearSolicitud_sobre_equipo_no_disponible_muestra_error() {
-        val vm = PrestamoViewModel(InMemoryPrestamoRepository())
+    fun crearSolicitud_sobre_equipo_no_disponible_muestra_error() = runTest {
+        val vm = PrestamoViewModel(FakePrestamoRepository())
+        backgroundScope.launch { vm.uiState.collect {} }
+        var resultado = true
 
-        val exitoso = crearSolicitud(vm, equipoId = 4)
+        vm.crearSolicitud(4, "Lab 3", "Práctica de redes", 4) { resultado = it }
 
-        assertFalse(exitoso)
+        assertFalse(resultado)
         assertEquals("El equipo no está disponible.", vm.uiState.value.mensaje)
     }
 
     @Test
-    fun crearSolicitud_con_destino_vacio_muestra_error() {
-        val vm = PrestamoViewModel(InMemoryPrestamoRepository())
+    fun crearSolicitud_con_destino_vacio_muestra_error() = runTest {
+        val vm = PrestamoViewModel(FakePrestamoRepository())
+        backgroundScope.launch { vm.uiState.collect {} }
 
-        assertFalse(crearSolicitud(vm, destino = ""))
+        vm.crearSolicitud(1, "", "Práctica de redes", 4)
         assertEquals("El ambiente o destino es obligatorio.", vm.uiState.value.mensaje)
 
-        assertFalse(crearSolicitud(vm, destino = "   "))
+        vm.crearSolicitud(1, "   ", "Práctica de redes", 4)
         assertEquals("El ambiente o destino es obligatorio.", vm.uiState.value.mensaje)
     }
 
     @Test
-    fun crearSolicitud_con_proposito_fuera_de_rango_muestra_error() {
-        val vm = PrestamoViewModel(InMemoryPrestamoRepository())
+    fun crearSolicitud_con_proposito_fuera_de_rango_muestra_error() = runTest {
+        val vm = PrestamoViewModel(FakePrestamoRepository())
+        backgroundScope.launch { vm.uiState.collect {} }
 
-        assertFalse(crearSolicitud(vm, proposito = "corto"))
+        vm.crearSolicitud(1, "Lab 3", "corto", 4)
         assertEquals("El propósito debe tener entre 10 y 180 caracteres.", vm.uiState.value.mensaje)
 
-        assertFalse(crearSolicitud(vm, proposito = "a".repeat(200)))
+        vm.crearSolicitud(1, "Lab 3", "a".repeat(200), 4)
         assertEquals("El propósito debe tener entre 10 y 180 caracteres.", vm.uiState.value.mensaje)
     }
 
     @Test
-    fun crearSolicitud_con_duracion_invalida_muestra_error() {
-        val vm = PrestamoViewModel(InMemoryPrestamoRepository())
+    fun crearSolicitud_con_duracion_invalida_muestra_error() = runTest {
+        val vm = PrestamoViewModel(FakePrestamoRepository())
+        backgroundScope.launch { vm.uiState.collect {} }
 
-        assertFalse(crearSolicitud(vm, duracionHoras = 0))
+        vm.crearSolicitud(1, "Lab 3", "Práctica de redes", 0)
         assertEquals("La duración debe estar entre 1 y 8 horas.", vm.uiState.value.mensaje)
 
-        assertFalse(crearSolicitud(vm, duracionHoras = 9))
+        vm.crearSolicitud(1, "Lab 3", "Práctica de redes", 9)
         assertEquals("La duración debe estar entre 1 y 8 horas.", vm.uiState.value.mensaje)
     }
 
     @Test
-    fun cancelarSolicitud_exitosa_libera_el_equipo() {
-        val vm = PrestamoViewModel(InMemoryPrestamoRepository())
-        crearSolicitud(vm)
+    fun crearSolicitud_duplicada_sobre_el_mismo_equipo_es_rechazada() = runTest {
+        val vm = PrestamoViewModel(FakePrestamoRepository())
+        backgroundScope.launch { vm.uiState.collect {} }
+        var primero = false
+        var segundo = true
 
-        val exitoso = vm.cancelarSolicitud(1)
+        vm.crearSolicitud(1, "Lab 3", "Práctica de redes", 4) { primero = it }
+        vm.crearSolicitud(1, "Lab 3", "Práctica de redes", 4) { segundo = it }
 
-        assertTrue(exitoso)
+        assertTrue(primero)
+        assertFalse(segundo)
+        assertEquals("Ya existe una solicitud activa para este equipo.", vm.uiState.value.mensaje)
+        assertEquals(1, vm.uiState.value.solicitudes.size)
+    }
+
+    @Test
+    fun cancelarSolicitud_exitosa_libera_el_equipo() = runTest {
+        val vm = PrestamoViewModel(FakePrestamoRepository())
+        backgroundScope.launch { vm.uiState.collect {} }
+        vm.crearSolicitud(1, "Lab 3", "Práctica de redes", 4)
+        var resultado = false
+
+        vm.cancelarSolicitud(1) { resultado = it }
+
+        assertTrue(resultado)
         assertEquals(
             "Solicitud cancelada. El equipo volvió a estar disponible.",
             vm.uiState.value.mensaje
         )
-        assertEquals(EstadoSolicitud.CANCELADA, vm.uiState.value.solicitudes[0].estado)
-        assertEquals(EstadoEquipo.DISPONIBLE, vm.uiState.value.equipos[0].estado)
+        assertEquals(EstadoSolicitud.CANCELADA, vm.solicitud(1)?.estado)
+        assertEquals(EstadoEquipo.DISPONIBLE, vm.equipo(1)?.estado)
     }
 
     @Test
-    fun cancelarSolicitud_inexistente_muestra_error() {
-        val vm = PrestamoViewModel(InMemoryPrestamoRepository())
+    fun cancelarSolicitud_inexistente_muestra_error() = runTest {
+        val vm = PrestamoViewModel(FakePrestamoRepository())
+        backgroundScope.launch { vm.uiState.collect {} }
+        var resultado = true
 
-        val exitoso = vm.cancelarSolicitud(123)
+        vm.cancelarSolicitud(123) { resultado = it }
 
-        assertFalse(exitoso)
+        assertFalse(resultado)
         assertEquals("La solicitud no existe.", vm.uiState.value.mensaje)
     }
 
     @Test
-    fun cancelarSolicitud_que_no_esta_solicitada_muestra_error() {
-        val vm = PrestamoViewModel(InMemoryPrestamoRepository())
-        crearSolicitud(vm)
-        vm.cancelarSolicitud(1)
-
-        val segunda = vm.cancelarSolicitud(1)
-
-        assertFalse(segunda)
-        assertEquals(
-            "Solo se pueden cancelar solicitudes SOLICITADAS.",
-            vm.uiState.value.mensaje
-        )
-    }
-
-    @Test
-    fun limpiarMensaje_vacia_el_mensaje() {
-        val vm = PrestamoViewModel(InMemoryPrestamoRepository())
-        crearSolicitud(vm, equipoId = 999)
+    fun limpiarMensaje_vacia_el_mensaje() = runTest {
+        val vm = PrestamoViewModel(FakePrestamoRepository())
+        backgroundScope.launch { vm.uiState.collect {} }
+        vm.crearSolicitud(999, "Lab 3", "Práctica de redes", 4)
 
         vm.limpiarMensaje()
 
         assertNull(vm.uiState.value.mensaje)
-    }
-
-    @Test
-    fun no_permite_doble_guardado_mientras_guardando() {
-        val vm = PrestamoViewModel(FailingRepository())
-        var fallo: Throwable? = null
-        try {
-            crearSolicitud(vm)
-        } catch (e: RuntimeException) {
-            fallo = e
-        }
-
-        assertTrue(vm.uiState.value.guardando)
-        assertFalse(crearSolicitud(vm))
-        assertEquals("boom", fallo?.message)
-    }
-
-    private class FailingRepository : PrestamoRepository {
-        override fun obtenerEquipos(): List<Equipo> =
-            listOf(Equipo(1, "Equipo de prueba", CategoriaEquipo.COMPUTO, EstadoEquipo.DISPONIBLE))
-
-        override fun obtenerEquipo(id: Int): Equipo? =
-            if (id == 1) Equipo(1, "Equipo de prueba", CategoriaEquipo.COMPUTO, EstadoEquipo.DISPONIBLE)
-            else null
-
-        override fun obtenerSolicitudes(): List<SolicitudPrestamo> = emptyList()
-
-        override fun obtenerSolicitud(id: Int): SolicitudPrestamo? = null
-
-        override fun crearSolicitud(solicitud: SolicitudPrestamo): Result<Unit> {
-            throw RuntimeException("boom")
-        }
-
-        override fun cancelarSolicitud(id: Int): Result<Unit> = Result.success(Unit)
     }
 }

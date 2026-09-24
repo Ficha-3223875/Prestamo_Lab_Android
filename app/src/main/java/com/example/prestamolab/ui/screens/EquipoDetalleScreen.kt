@@ -26,7 +26,7 @@ import com.example.prestamolab.ui.theme.*
 fun EquipoDetalleScreen(
     equipo: Equipo?,
     onBack: () -> Unit,
-    onSolicitar: () -> Unit
+    onSolicitar: (Int) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -129,7 +129,7 @@ fun EquipoDetalleScreen(
                 }
 
                 Button(
-                    onClick = onSolicitar,
+                    onClick = { onSolicitar(equipo.id) },
                     enabled = equipo.estado == EstadoEquipo.DISPONIBLE,
                     modifier = Modifier
                         .fillMaxWidth()

@@ -1,5 +1,6 @@
 package com.example.prestamolab.ui.screens
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -15,8 +16,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.prestamolab.model.Equipo
 import com.example.prestamolab.model.EstadoSolicitud
 import com.example.prestamolab.model.SolicitudPrestamo
@@ -28,7 +31,8 @@ fun SolicitudDetalleScreen(
     solicitud: SolicitudPrestamo?,
     equipo: Equipo?,
     onBack: () -> Unit,
-    onCancelar: () -> Unit
+    onCancelar: (Int) -> Unit,
+    onDevolver: (Int, String?) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -135,6 +139,74 @@ fun SolicitudDetalleScreen(
                     }
                 }
 
+                // Foto de evidencia de la solicitud (al pedir el equipo)
+                if (!solicitud.fotoUriString.isNullOrBlank()) {
+                    Card(
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(20.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text(
+                                "Evidencia de la solicitud",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            HorizontalDivider()
+
+                            AsyncImage(
+                                model = Uri.parse(solicitud.fotoUriString),
+                                contentDescription = "Fotografía de evidencia de la solicitud",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(220.dp)
+                                    .clip(RoundedCornerShape(12.dp)),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+                    }
+                }
+
+                // Foto de evidencia de la devolución (si ya se devolvió)
+                if (!solicitud.fotoDevolucionUri.isNullOrBlank()) {
+                    Card(
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(20.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text(
+                                "Evidencia de la devolución",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            HorizontalDivider()
+
+                            AsyncImage(
+                                model = Uri.parse(solicitud.fotoDevolucionUri),
+                                contentDescription = "Fotografía de evidencia de la devolución",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(220.dp)
+                                    .clip(RoundedCornerShape(12.dp)),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+                    }
+                }
+
                 Card(
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
@@ -175,48 +247,73 @@ fun SolicitudDetalleScreen(
                     }
                 }
 
-                if (solicitud.estado == EstadoSolicitud.SOLICITADA) {
-                    OutlinedButton(
-                        onClick = onCancelar,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error
-                        )
-                    ) {
-                        Icon(
-                            Icons.Default.Cancel,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        Text("Cancelar solicitud", fontWeight = FontWeight.SemiBold)
-                    }
-                } else {
-                    Card(
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                        )
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                when (solicitud.estado) {
+                    EstadoSolicitud.SOLICITADA -> {
+                        OutlinedButton(
+                            onClick = { onCancelar(solicitud.id) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = MaterialTheme.colorScheme.error
+                            )
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Info,
+                                Icons.Default.Cancel,
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(20.dp)
                             )
-                            Spacer(Modifier.width(12.dp))
-                            Text(
-                                "Esta solicitud no puede cancelarse porque su estado es ${solicitud.estado.texto}.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            Spacer(Modifier.width(8.dp))
+                            Text("Cancelar solicitud", fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+
+                    EstadoSolicitud.ENTREGADA -> {
+                        Button(
+                            onClick = { onDevolver(solicitud.id, null) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
                             )
+                        ) {
+                            Icon(
+                                Icons.Default.AssignmentReturn,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text("Marcar como devuelto", fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+
+                    else -> {
+                        Card(
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                            )
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Info,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(Modifier.width(12.dp))
+                                Text(
+                                    "No hay acciones disponibles porque el estado actual es ${solicitud.estado.texto}.",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
                     }
                 }

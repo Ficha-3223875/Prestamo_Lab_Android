@@ -1,6 +1,7 @@
 package com.example.prestamolab.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.prestamolab.data.repository.destinoValido
 import com.example.prestamolab.data.repository.duracionValida
 import com.example.prestamolab.data.repository.equipoDisponible
@@ -10,8 +11,11 @@ import com.example.prestamolab.model.Equipo
 import com.example.prestamolab.model.EstadoSolicitud
 import com.example.prestamolab.model.SolicitudPrestamo
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 data class PrestamoUiState(
     val equipos: List<Equipo> = emptyList(),
@@ -24,93 +28,112 @@ class PrestamoViewModel(
     private val repository: PrestamoRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(
-        PrestamoUiState(
-            equipos = repository.obtenerEquipos(),
-            solicitudes = repository.obtenerSolicitudes()
-        )
+    private val _mensaje = MutableStateFlow<String?>(null)
+    private val _guardando = MutableStateFlow(false)
+
+    val uiState: StateFlow<PrestamoUiState> = combine(
+        repository.observarEquipos(),
+        repository.observarSolicitudes(),
+        _mensaje,
+        _guardando
+    ) { equipos, solicitudes, mensaje, guardando ->
+        PrestamoUiState(equipos, solicitudes, mensaje, guardando)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = PrestamoUiState()
     )
 
-    val uiState: StateFlow<PrestamoUiState> = _uiState.asStateFlow()
+    fun equipo(id: Int): Equipo? = uiState.value.equipos.find { it.id == id }
 
-    fun equipo(id: Int): Equipo? = repository.obtenerEquipo(id)
-
-    fun solicitud(id: Int): SolicitudPrestamo? = repository.obtenerSolicitud(id)
+    fun solicitud(id: Int): SolicitudPrestamo? = uiState.value.solicitudes.find { it.id == id }
 
     fun limpiarMensaje() {
-        _uiState.value = _uiState.value.copy(mensaje = null)
+        _mensaje.value = null
     }
 
     fun crearSolicitud(
         equipoId: Int,
         destino: String,
         proposito: String,
-        duracionHoras: Int
-    ): Boolean {
-        if (_uiState.value.guardando) return false
+        duracionHoras: Int,
+        fotoUri: String? = null,
+        onResultado: (Boolean) -> Unit = {}
+    ) {
+        if (_guardando.value) {
+            onResultado(false)
+            return
+        }
 
-        val equipo = repository.obtenerEquipo(equipoId)
-            ?: return mostrarError("El equipo solicitado no existe.")
-
+        val equipo = equipo(equipoId)
+        if (equipo == null) {
+            _mensaje.value = "El equipo solicitado no existe."
+            onResultado(false)
+            return
+        }
         if (!equipoDisponible(equipo)) {
-            return mostrarError("El equipo no está disponible.")
+            _mensaje.value = "El equipo no está disponible."
+            onResultado(false)
+            return
         }
-
         if (!destinoValido(destino)) {
-            return mostrarError("El ambiente o destino es obligatorio.")
+            _mensaje.value = "El ambiente o destino es obligatorio."
+            onResultado(false)
+            return
         }
-
         if (!propositoValido(proposito)) {
-            return mostrarError("El propósito debe tener entre 10 y 180 caracteres.")
+            _mensaje.value = "El propósito debe tener entre 10 y 180 caracteres."
+            onResultado(false)
+            return
         }
-
         if (!duracionValida(duracionHoras)) {
-            return mostrarError("La duración debe estar entre 1 y 8 horas.")
+            _mensaje.value = "La duración debe estar entre 1 y 8 horas."
+            onResultado(false)
+            return
         }
 
-        _uiState.value = _uiState.value.copy(guardando = true)
-
-        val resultado = repository.crearSolicitud(
-            SolicitudPrestamo(
-                id = 0,
-                equipoId = equipoId,
-                ambienteDestino = destino.trim(),
-                proposito = proposito.trim(),
-                duracionHoras = duracionHoras,
-                estado = EstadoSolicitud.SOLICITADA
+        _guardando.value = true
+        viewModelScope.launch {
+            val resultado = repository.crearSolicitud(
+                SolicitudPrestamo(
+                    id = 0,
+                    equipoId = equipoId,
+                    ambienteDestino = destino.trim(),
+                    proposito = proposito.trim(),
+                    duracionHoras = duracionHoras,
+                    estado = EstadoSolicitud.SOLICITADA,
+                    fotoUriString = fotoUri
+                )
             )
-        )
 
-        _uiState.value = _uiState.value.copy(
-            equipos = repository.obtenerEquipos(),
-            solicitudes = repository.obtenerSolicitudes(),
-            mensaje = resultado.fold(
+            _guardando.value = false
+            _mensaje.value = resultado.fold(
                 onSuccess = { "Solicitud creada correctamente." },
                 onFailure = { it.message ?: "No fue posible crear la solicitud." }
-            ),
-            guardando = false
-        )
-
-        return resultado.isSuccess
+            )
+            onResultado(resultado.isSuccess)
+        }
     }
 
-    fun cancelarSolicitud(id: Int): Boolean {
-        val resultado = repository.cancelarSolicitud(id)
-
-        _uiState.value = _uiState.value.copy(
-            equipos = repository.obtenerEquipos(),
-            solicitudes = repository.obtenerSolicitudes(),
-            mensaje = resultado.fold(
+    fun cancelarSolicitud(id: Int, onResultado: (Boolean) -> Unit = {}) {
+        viewModelScope.launch {
+            val resultado = repository.cancelarSolicitud(id)
+            _mensaje.value = resultado.fold(
                 onSuccess = { "Solicitud cancelada. El equipo volvió a estar disponible." },
                 onFailure = { it.message ?: "No fue posible cancelar la solicitud." }
             )
-        )
-
-        return resultado.isSuccess
+            onResultado(resultado.isSuccess)
+        }
     }
 
-    private fun mostrarError(mensaje: String): Boolean {
-        _uiState.value = _uiState.value.copy(mensaje = mensaje)
-        return false
+    fun devolverSolicitud(id: Int, fotoDevolucionUri: String? = null, onResultado: (Boolean) -> Unit = {}) {
+        viewModelScope.launch {
+            val resultado = repository.devolverSolicitud(id, fotoDevolucionUri)
+            _mensaje.value = resultado.fold(
+                onSuccess = { "Equipo devuelto correctamente. El equipo vuelve a estar disponible." },
+                onFailure = { it.message ?: "No fue posible procesar la devolución." }
+            )
+            onResultado(resultado.isSuccess)
+        }
     }
 }
