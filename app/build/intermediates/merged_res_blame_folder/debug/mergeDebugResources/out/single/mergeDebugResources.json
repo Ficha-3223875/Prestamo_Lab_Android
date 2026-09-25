@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "com.example.prestamolab.app-debug-60:/xml_file_paths.xml.flat",
+        "source": "com.example.prestamolab.app-main-62:/xml/file_paths.xml"
+    },
+    {
+        "merged": "com.example.prestamolab.app-debug-60:/drawable_ic_stat_prestamolab.xml.flat",
+        "source": "com.example.prestamolab.app-main-62:/drawable/ic_stat_prestamolab.xml"
+    }
+]
