@@ -295,6 +295,269 @@ Entre los documentos que pueden formar parte de esta carpeta se encuentran:
 
 ---
 
+
+
+## 🎤 13. Preguntas para sustentación
+
+### 40. Abra una HU y muestre un criterio de aceptación; siga la trazabilidad hasta el código y la prueba que lo valida.
+
+Una Historia de Usuario puede relacionarse con la creación de una solicitud de préstamo.
+
+**Criterio de aceptación:**
+El usuario debe poder registrar una solicitud únicamente cuando el destino sea válido, el propósito tenga entre 10 y 180 caracteres y la duración esté entre 1 y 8 horas.
+
+**Trazabilidad:**
+
+```text
+Historia de Usuario
+        ↓
+Criterio de aceptación
+        ↓
+Regla de negocio
+        ↓
+Validación en el código
+        ↓
+ViewModel / Repository
+        ↓
+Prueba unitaria
+```
+
+En el proyecto estas reglas están documentadas como reglas de negocio y las pruebas unitarias cubren las validaciones, el repositorio y el ViewModel.
+
+---
+
+### 41. Explique por qué Room se considera fuente local canónica en su solución.
+
+**En el incremento actual no se utiliza Room.**
+
+La solución actual utiliza `InMemoryRepository` como almacenamiento temporal durante la ejecución de la aplicación. Los datos se pierden al reiniciar la aplicación y el README indica que actualmente no existe una base de datos.
+
+Por lo tanto, para este incremento, la fuente local de información es el repositorio en memoria.
+
+Si posteriormente se incorpora Room, este podría utilizarse como fuente local persistente y única de verdad para los datos almacenados en el dispositivo.
+
+---
+
+### 42. ¿Qué diferencia existe entre Flow y StateFlow en el contexto del ViewModel?
+
+`Flow` representa un flujo de datos que puede emitir valores a lo largo del tiempo.
+
+`StateFlow` es un tipo de `Flow` diseñado para representar **estado**, ya que mantiene un valor actual y permite que la interfaz observe los cambios.
+
+En el proyecto, el ViewModel utiliza `StateFlow` para exponer el estado de la aplicación hacia la interfaz.
+
+Por ejemplo:
+
+```kotlin
+private val _uiState = MutableStateFlow(...)
+val uiState: StateFlow<...> = _uiState.asStateFlow()
+```
+
+De esta manera, el ViewModel modifica el estado y la interfaz reacciona a los cambios.
+
+---
+
+### 43. Muestre un caso de error de red y explique cómo se representa en UiState.
+
+**El proyecto actual no utiliza una API REST ni operaciones de red**, por lo que no tiene un error de red implementado.
+
+En la arquitectura actual, los errores corresponden principalmente a validaciones y operaciones inválidas.
+
+Por ejemplo:
+
+```text
+Usuario deja vacío el destino
+        ↓
+Validación
+        ↓
+Error
+        ↓
+UiState
+        ↓
+La interfaz muestra el mensaje
+```
+
+Si en una versión futura se incorpora una API, el `UiState` podría representar estados como:
+
+```kotlin
+data class UiState(
+    val cargando: Boolean = false,
+    val error: String? = null
+)
+```
+
+Un error de red podría establecer:
+
+```kotlin
+error = "No se pudo conectar con el servidor"
+```
+
+---
+
+### 44. Seleccione un test automatizado y explique Arrange, Act y Assert.
+
+Un ejemplo puede ser una prueba de validación del propósito.
+
+**Arrange:** preparar los datos de prueba.
+
+```kotlin
+val proposito = "Préstamo"
+```
+
+**Act:** ejecutar la función que valida el propósito.
+
+```kotlin
+val resultado = validarProposito(proposito)
+```
+
+**Assert:** comprobar que el resultado sea el esperado.
+
+```kotlin
+assertFalse(resultado)
+```
+
+La estructura es:
+
+```text
+Arrange → preparar
+Act     → ejecutar
+Assert  → comprobar
+```
+
+Esto permite que cada prueba tenga un objetivo claro y fácil de entender.
+
+---
+
+### 45. ¿Qué parte del incremento fue desarrollada mediante TDD y qué aprendieron?
+
+La parte que puede relacionarse con TDD es la construcción de las **reglas de validación de las solicitudes**.
+
+El proceso consiste en:
+
+```text
+1. Definir el comportamiento esperado
+        ↓
+2. Crear la prueba
+        ↓
+3. Implementar la validación
+        ↓
+4. Ejecutar la prueba
+        ↓
+5. Corregir y refactorizar
+```
+
+Esto permitió comprobar las reglas antes de considerar terminada la funcionalidad.
+
+El principal aprendizaje fue que las pruebas ayudan a detectar errores temprano y permiten modificar el código con mayor seguridad.
+
+---
+
+### 46. Muestre un defecto encontrado, su confirmación y la regresión seleccionada.
+
+Un ejemplo de defecto es permitir registrar una solicitud con un **propósito menor a 10 caracteres**, incumpliendo la regla de negocio.
+
+**Defecto encontrado:**
+
+```text
+Propósito: "Préstamo"
+```
+
+El texto tiene menos de 10 caracteres.
+
+**Confirmación:**
+
+Se ejecuta la validación y se comprueba que la solicitud no debe ser aceptada.
+
+**Corrección:**
+
+Se aplica la regla:
+
+```text
+10 ≤ longitud del propósito ≤ 180
+```
+
+**Prueba de regresión:**
+
+Después de corregir el defecto se vuelven a ejecutar las pruebas de validación para comprobar que:
+
+* Un propósito menor de 10 caracteres sea rechazado.
+* Un propósito válido sea aceptado.
+* Un propósito mayor de 180 caracteres sea rechazado.
+
+---
+
+### 47. ¿Qué permiso del dispositivo solicitaron y por qué cumple mínimo privilegio?
+
+**En el incremento documentado no se especifica ningún permiso del dispositivo solicitado.**
+
+El README únicamente establece que la aplicación puede ejecutarse en un dispositivo físico con depuración USB habilitada para desarrollo y pruebas.
+
+Por lo tanto, no se debe afirmar que se solicitó un permiso específico si este no está realmente implementado en el `AndroidManifest.xml`.
+
+Si posteriormente se requiere un permiso, debe solicitarse únicamente el necesario para la funcionalidad correspondiente, siguiendo el principio de **mínimo privilegio**.
+
+---
+
+### 48. ¿Qué quality gates utiliza su Pull Request?
+
+En el README actual **no hay un flujo de integración continua (CI) configurado**.
+
+Por esta razón, no sería correcto afirmar que existe un quality gate automático en GitHub Actions.
+
+Como controles actuales se pueden considerar:
+
+* Compilación del proyecto.
+* Ejecución de las pruebas unitarias.
+* Revisión de los cambios antes del merge.
+* Verificación de que las funcionalidades cumplan las reglas de negocio.
+
+Las pruebas pueden ejecutarse mediante:
+
+```powershell
+.\gradlew.bat test
+```
+
+Y la aplicación puede compilarse mediante:
+
+```powershell
+.\gradlew.bat assembleDebug
+```
+
+Estas verificaciones permiten comprobar que los cambios no rompan las funcionalidades existentes.
+
+---
+
+### 49. ¿Qué riesgo residual permanece en el incremento actual?
+
+El principal riesgo residual es que la información se almacena únicamente en memoria.
+
+Actualmente:
+
+```text
+InMemoryRepository
+        ↓
+Datos temporales
+        ↓
+Reinicio de la aplicación
+        ↓
+Los datos se pierden
+```
+
+El README confirma que el proyecto no utiliza una base de datos y que la información puede perderse al reiniciar la aplicación.
+
+Por lo tanto, un riesgo pendiente es la **falta de persistencia permanente de los préstamos y solicitudes**.
+
+Otros riesgos que pueden considerarse son:
+
+* No existe una API REST.
+* No existe sincronización con un servidor.
+* No existe integración continua configurada.
+* La información actualmente está limitada al almacenamiento en memoria.
+
+Estos riesgos pueden abordarse en futuros incrementos mediante persistencia local, por ejemplo Room, una API REST y un flujo de CI.
+
+
+
 <p align="center">
   <strong>PréstamoLab CTMA</strong><br>
   Proyecto académico de desarrollo de aplicaciones móviles Android.
